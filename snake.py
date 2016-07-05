@@ -24,6 +24,8 @@ pygame.display.set_caption('Snake Maze')
 clock = pygame.time.Clock()
 font = pygame.font.SysFont(None, 25)
 
+snake_head_img = pygame.image.load('snake head.png')
+snake_head_faded_img = pygame.image.load('snake head faded.png')
 
 def display_text(text, colour, position):
     screen_text = font.render(text, True, colour)
@@ -32,8 +34,10 @@ def display_text(text, colour, position):
                                         screen_text.get_rect().height/2])
 
 
-def draw_snake(snake_body, colour):
-    for coord in snake_body:
+def draw_snake(snake_head_rotated, snake_body, colour):
+
+    game_display.blit(snake_head_rotated, [snake_body[-1][0], snake_body[-1][1]])
+    for coord in snake_body[:-1]:
         pygame.draw.rect(game_display, colour, [coord[0], coord[1], SCALE, SCALE])
 
 
@@ -83,9 +87,11 @@ def game_loop():
     x_change = 0
     y_change = SCALE
     snake_body = []
-    snake_length = 1
+    snake_length = 2
     maze_parts = create_maze()
     cherry = set_cherry(snake_body, maze_parts)
+    snake_head_rotated = pygame.transform.rotate(snake_head_img, 180)
+    snake_head_faded_rotated = pygame.transform.rotate(snake_head_faded_img, 180)
 
     while not game_exit:
 
@@ -93,18 +99,26 @@ def game_loop():
             if event.type == pygame.QUIT:
                 game_exit = True
             elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_LEFT or event.key == pygame.K_a and x_change == 0:
+                if (event.key == pygame.K_LEFT or event.key == pygame.K_a) and x_change == 0:
                     x_change = -SCALE
                     y_change = 0
-                elif event.key == pygame.K_RIGHT  or event.key == pygame.K_d and x_change == 0:
+                    snake_head_rotated = pygame.transform.rotate(snake_head_img, 90)
+                    snake_head_faded_rotated = pygame.transform.rotate(snake_head_faded_img, 90)
+                elif (event.key == pygame.K_RIGHT  or event.key == pygame.K_d) and x_change == 0:
                     x_change = SCALE
                     y_change = 0
-                elif event.key == pygame.K_UP  or event.key == pygame.K_w and y_change == 0:
+                    snake_head_rotated = pygame.transform.rotate(snake_head_img, 270)
+                    snake_head_faded_rotated = pygame.transform.rotate(snake_head_faded_img, 270)
+                elif (event.key == pygame.K_UP  or event.key == pygame.K_w) and y_change == 0:
                     x_change = 0
                     y_change = -SCALE
-                elif event.key == pygame.K_DOWN or event.key == pygame.K_s and y_change == 0:
+                    snake_head_rotated = snake_head_img
+                    snake_head_faded_rotated = snake_head_faded_img
+                elif (event.key == pygame.K_DOWN or event.key == pygame.K_s) and y_change == 0:
                     x_change = 0
                     y_change = SCALE
+                    snake_head_rotated = pygame.transform.rotate(snake_head_img, 180)
+                    snake_head_faded_rotated = pygame.transform.rotate(snake_head_faded_img, 180)
 
         if snake_head[0] + x_change > DISPLAY_WIDTH - SCALE or snake_head[0] + x_change < 0 or snake_head[1] + \
                 y_change > DISPLAY_HEIGHT - SCALE or snake_head[1] + y_change < 0:
@@ -135,16 +149,16 @@ def game_loop():
                 del snake_body[0]
 
         game_display.fill(white)
-        pygame.draw.rect(game_display, red, [cherry[0], cherry[1], SCALE, SCALE])
-        draw_snake(snake_body, green)
+        pygame.draw.ellipse(game_display, red, [cherry[0], cherry[1], SCALE, SCALE])
+        draw_snake(snake_head_rotated, snake_body, green)
         draw_maze(maze_parts, black)
         pygame.display.update()
         clock.tick(FPS)
 
         while game_over == True:
             game_display.fill(white)
-            pygame.draw.rect(game_display, faded_red, [cherry[0], cherry[1], SCALE, SCALE])
-            draw_snake(snake_body, faded_green)
+            pygame.draw.ellipse(game_display, faded_red, [cherry[0], cherry[1], SCALE, SCALE])
+            draw_snake(snake_head_faded_rotated, snake_body, faded_green)
             draw_maze(maze_parts, grey)
             display_text("Game Over, press 'space' to play again or 'esc' to quit", red, 'center')
             pygame.display.update()
