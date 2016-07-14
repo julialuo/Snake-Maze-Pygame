@@ -143,7 +143,9 @@ def game_loop(fps, maze_num):
             if event.type == pygame.QUIT:
                 game_exit = True
             elif event.type == pygame.KEYDOWN:
-                if (event.key == pygame.K_LEFT or event.key == pygame.K_a) and x_change == 0:
+                if event.key == pygame.K_ESCAPE:
+                    game_exit = True
+                elif (event.key == pygame.K_LEFT or event.key == pygame.K_a) and x_change == 0:
                     x_change = -SCALE
                     y_change = 0
                     rotation = 90
@@ -205,6 +207,7 @@ def game_loop(fps, maze_num):
             pygame.draw.ellipse(game_display, faded_red, [cherry[0], cherry[1], SCALE, SCALE])
             draw_snake(snake_head_faded_rotated, snake_body, faded_green)
             draw_maze(maze_parts, grey)
+            display_text(score_text, 'small', green, 'top center')
             display_text('GAME OVER', 'large', red, 'center', -25)
             display_text("Press 'space' to play again or 'r' to return to menu", 'small', black, 'center', 25)
             pygame.display.update()
@@ -214,7 +217,10 @@ def game_loop(fps, maze_num):
                     game_exit = True
                     game_over = False
                 elif event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_r:
+                    if event.key == pygame.K_ESCAPE:
+                        game_exit = True
+                        game_over = False
+                    elif event.key == pygame.K_r:
                         fps, maze_num, continue_game = game_intro()
                         if continue_game:
                             game_loop(fps, maze_num)
